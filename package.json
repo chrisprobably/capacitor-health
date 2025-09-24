@@ -1,7 +1,7 @@
 {
   "name": "@capgo/capacitor-health",
-  "version": "0.0.1",
-  "description": "Capacitor plugin to retrieve data from Apple healthKit and Google Fit",
+  "version": "7.0.0",
+  "description": "Capacitor plugin to interact with data from Apple HealthKit and Health Connect",
   "main": "dist/plugin.cjs.js",
   "module": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
