@@ -1,6 +1,6 @@
 {
-  "appId": "com.example.plugin",
-  "appName": "example-app",
+  "appId": "app.capgo.health",
+  "appName": "Health Example",
   "webDir": "dist",
   "plugins": {
     "SplashScreen": {
