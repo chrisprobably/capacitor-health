@@ -1,4 +1,4 @@
-package com.example.plugin;
+package app.capgo.health;
 
 import com.getcapacitor.BridgeActivity;
 
