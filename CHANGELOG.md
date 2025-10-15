@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [7.0.9](https://github.com/Cap-go/capacitor-health/compare/7.0.8...7.0.9) (2025-10-15)
+
+
+### Bug Fixes
+
+* lock and lint ([7f2c115](https://github.com/Cap-go/capacitor-health/commit/7f2c11581d2773d6f626445351c88c361ddd08df))
+
 ## [7.0.8](https://github.com/Cap-go/capacitor-health/compare/7.0.7...7.0.8) (2025-10-14)
 
 ## [7.0.7](https://github.com/Cap-go/capacitor-health/compare/7.0.6...7.0.7) (2025-10-11)
