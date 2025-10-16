@@ -8,17 +8,211 @@
       content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"
     />
     <meta name="format-detection" content="telephone=no" />
+    <style>
+      :root {
+        color-scheme: light dark;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: #0f172a;
+        color: #e2e8f0;
+      }
+      body {
+        margin: 0;
+        padding: 24px;
+      }
+      main {
+        max-width: 960px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+      section {
+        background: rgba(15, 23, 42, 0.75);
+        border-radius: 16px;
+        border: 1px solid rgba(148, 163, 184, 0.25);
+        padding: 1.25rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+      button {
+        border: none;
+        border-radius: 999px;
+        padding: 0.65rem 1.6rem;
+        background: linear-gradient(120deg, #22d3ee, #6366f1);
+        color: #0f172a;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      input,
+      select {
+        font-family: inherit;
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid rgba(148, 163, 184, 0.35);
+        border-radius: 10px;
+        color: inherit;
+        padding: 0.5rem 0.75rem;
+      }
+      .auth-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1rem;
+      }
+      .auth-grid h3 {
+        margin-top: 0;
+      }
+      .auth-grid label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .button-row {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+      }
+      .grid {
+        display: grid;
+        gap: 0.75rem;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      }
+      .grid label {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+      }
+      pre#outputPane {
+        background: rgba(15, 23, 42, 0.7);
+        padding: 1rem;
+        border-radius: 12px;
+        max-height: 340px;
+        overflow: auto;
+        margin: 0;
+      }
+      .samples-grid {
+        display: grid;
+        gap: 1rem;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      }
+      .sample-card {
+        background: rgba(15, 23, 42, 0.6);
+        border-radius: 12px;
+        border: 1px solid rgba(148, 163, 184, 0.25);
+        padding: 0.85rem;
+      }
+      .sample-card h3 {
+        margin: 0 0 0.35rem 0;
+      }
+    </style>
   </head>
   <body>
     <main>
-      <h1>Capacitor Test Plugin Project</h1>
+      <h1>@capgo/capacitor-health Demo</h1>
       <p>
-        This project can be used to test out the functionality of your plugin. Nothing in the
-        <em>example-app/</em> folder will be published to npm when using this template, so you can create away!
+        Validate the health data integration by toggling permissions, reading samples, and writing test data. Use a device with HealthKit or Google Fit configured.
       </p>
-      <label for="echoInput">Echo Text:</label>
-      <input type="text" id="echoInput" name="echoInput" value="Hello World!" />
-      <button onclick="testEcho()">Click Me!</button>
+
+      <section>
+        <h2>Availability</h2>
+        <button id="availabilityButton" type="button">Check Availability</button>
+      </section>
+
+      <section>
+        <h2>Authorization</h2>
+        <div class="auth-grid">
+          <div>
+            <h3>Read Types</h3>
+            <label><input type="checkbox" class="read-type" value="steps" checked /> Steps</label>
+            <label><input type="checkbox" class="read-type" value="distance" /> Distance</label>
+            <label><input type="checkbox" class="read-type" value="calories" /> Calories</label>
+            <label><input type="checkbox" class="read-type" value="heartRate" /> Heart rate</label>
+            <label><input type="checkbox" class="read-type" value="weight" /> Weight</label>
+          </div>
+          <div>
+            <h3>Write Types</h3>
+            <label><input type="checkbox" class="write-type" value="steps" /> Steps</label>
+            <label><input type="checkbox" class="write-type" value="distance" /> Distance</label>
+            <label><input type="checkbox" class="write-type" value="calories" /> Calories</label>
+            <label><input type="checkbox" class="write-type" value="heartRate" /> Heart rate</label>
+            <label><input type="checkbox" class="write-type" value="weight" /> Weight</label>
+          </div>
+        </div>
+        <div class="button-row">
+          <button id="requestAuthButton" type="button">Request Authorization</button>
+          <button id="checkAuthButton" type="button">Check Authorization</button>
+        </div>
+      </section>
+
+      <section>
+        <h2>Read Samples</h2>
+        <div class="grid">
+          <label>Data type
+            <select id="readType">
+              <option value="steps">steps</option>
+              <option value="distance">distance</option>
+              <option value="calories">calories</option>
+              <option value="heartRate">heartRate</option>
+              <option value="weight">weight</option>
+            </select>
+          </label>
+          <label>Start date
+            <input type="datetime-local" id="readStart" />
+          </label>
+          <label>End date
+            <input type="datetime-local" id="readEnd" />
+          </label>
+          <label>Limit
+            <input type="number" id="readLimit" min="1" value="20" />
+          </label>
+          <label>Ascending
+            <select id="readAscending">
+              <option value="false" selected>No</option>
+              <option value="true">Yes</option>
+            </select>
+          </label>
+        </div>
+        <button id="readSamplesButton" type="button">Read Samples</button>
+      </section>
+
+      <section>
+        <h2>Save Sample</h2>
+        <div class="grid">
+          <label>Data type
+            <select id="writeType">
+              <option value="steps">steps</option>
+              <option value="distance">distance</option>
+              <option value="calories">calories</option>
+              <option value="heartRate">heartRate</option>
+              <option value="weight">weight</option>
+            </select>
+          </label>
+          <label>Value
+            <input type="number" id="writeValue" step="0.1" value="10" />
+          </label>
+          <label>Unit (optional)
+            <input type="text" id="writeUnit" placeholder="count/meter/kilocalorie/bpm/kilogram" />
+          </label>
+          <label>Start date
+            <input type="datetime-local" id="writeStart" />
+          </label>
+          <label>End date
+            <input type="datetime-local" id="writeEnd" />
+          </label>
+        </div>
+        <button id="saveSampleButton" type="button">Save Sample</button>
+      </section>
+
+      <p id="statusLine">Status: Idle</p>
+
+      <section>
+        <h2>Output</h2>
+        <pre id="outputPane">Awaiting interaction.</pre>
+      </section>
+
+      <section>
+        <h2>Samples Preview</h2>
+        <div id="samplesContainer" class="samples-grid"></div>
+      </section>
     </main>
 
     <script src="./js/example.js" type="module"></script>
