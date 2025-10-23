@@ -2,11 +2,11 @@
 import PackageDescription
 
 let package = Package(
-    name: "CapgoCapacitorHealth",
+    name: "ChrisprobablyCapacitorHealth",
     platforms: [.iOS(.v14)],
     products: [
         .library(
-            name: "CapgoCapacitorHealth",
+            name: "ChrisprobablyCapacitorHealth",
             targets: ["HealthPlugin"])
     ],
     dependencies: [

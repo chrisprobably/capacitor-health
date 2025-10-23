@@ -33,8 +33,9 @@ enum HealthDataType: String, CaseIterable {
     case calories
     case heartRate
     case weight
+    case sleepAnalysis
 
-    func sampleType() throws -> HKQuantityType {
+    func sampleType() throws -> HKSampleType {
         let identifier: HKQuantityTypeIdentifier
         switch self {
         case .steps:
@@ -47,11 +48,17 @@ enum HealthDataType: String, CaseIterable {
             identifier = .heartRate
         case .weight:
             identifier = .bodyMass
+        case .sleepAnalysis:
+            guard let type = HKObjectType.categoryType(forIdentifier: .sleepAnalysis) else {
+                throw HealthManagerError.dataTypeUnavailable(rawValue)
+            }
+            return type
         }
 
         guard let type = HKObjectType.quantityType(forIdentifier: identifier) else {
             throw HealthManagerError.dataTypeUnavailable(rawValue)
         }
+
         return type
     }
 
@@ -67,7 +74,10 @@ enum HealthDataType: String, CaseIterable {
             return HKUnit.count().unitDivided(by: HKUnit.minute())
         case .weight:
             return HKUnit.gramUnit(with: .kilo)
+        case .sleepAnalysis:
+            return HKUnit.hour()
         }
+
     }
 
     var unitIdentifier: String {
@@ -82,6 +92,8 @@ enum HealthDataType: String, CaseIterable {
             return "bpm"
         case .weight:
             return "kilogram"
+        case .sleepAnalysis:
+            return "sleepCategory"
         }
     }
 
@@ -207,29 +219,44 @@ final class Health {
                 return
             }
 
-            guard let quantitySamples = samples as? [HKQuantitySample] else {
-                completion(.success([]))
-                return
+            if dataType == .sleepAnalysis {
+                let result = (samples ?? []).compactMap { $0 as? HKCategorySample }.map { sample -> [String: Any] in
+                    [
+                        "dataType": dataType.rawValue,
+                        "value": sample.value, // Sleep category: e.g., inBed, asleep
+                        "startDate": self.isoFormatter.string(from: sample.startDate),
+                        "endDate": self.isoFormatter.string(from: sample.endDate),
+                        "sourceName": sample.sourceRevision.source.name,
+                        "sourceId": sample.sourceRevision.source.bundleIdentifier
+                    ]
+                }
+                completion(.success(result))
+            } else {
+                // existing logic for quantity samples
+                guard let quantitySamples = samples as? [HKQuantitySample] else {
+                    completion(.success([]))
+                    return
+                }
+
+                let results = quantitySamples.map { sample -> [String: Any] in
+                    let value = sample.quantity.doubleValue(for: dataType.defaultUnit)
+                    var payload: [String: Any] = [
+                        "dataType": dataType.rawValue,
+                        "value": value,
+                        "unit": dataType.unitIdentifier,
+                        "startDate": self.isoFormatter.string(from: sample.startDate),
+                        "endDate": self.isoFormatter.string(from: sample.endDate)
+                    ]
+
+                    let source = sample.sourceRevision.source
+                    payload["sourceName"] = source.name
+                    payload["sourceId"] = source.bundleIdentifier
+
+                    return payload
+                }
+
+                completion(.success(results))
             }
-
-            let results = quantitySamples.map { sample -> [String: Any] in
-                let value = sample.quantity.doubleValue(for: dataType.defaultUnit)
-                var payload: [String: Any] = [
-                    "dataType": dataType.rawValue,
-                    "value": value,
-                    "unit": dataType.unitIdentifier,
-                    "startDate": self.isoFormatter.string(from: sample.startDate),
-                    "endDate": self.isoFormatter.string(from: sample.endDate)
-                ]
-
-                let source = sample.sourceRevision.source
-                payload["sourceName"] = source.name
-                payload["sourceId"] = source.bundleIdentifier
-
-                return payload
-            }
-
-            completion(.success(results))
         }
 
         healthStore.execute(query)

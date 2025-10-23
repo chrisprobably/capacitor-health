@@ -1,4 +1,4 @@
-export type HealthDataType = 'steps' | 'distance' | 'calories' | 'heartRate' | 'weight';
+export type HealthDataType = 'steps' | 'distance' | 'calories' | 'heartRate' | 'weight' | 'sleepAnalysis';
 
 export type HealthUnit = 'count' | 'meter' | 'kilocalorie' | 'bpm' | 'kilogram';
 
