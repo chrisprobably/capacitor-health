@@ -256,12 +256,12 @@ Writes a single sample to the native health store.
 
 #### HealthDataType
 
-<code>'steps' | 'distance' | 'calories' | 'heartRate' | 'weight' | 'sleepAnalysis'</code>
+<code>'steps' | 'distance' | 'calories' | 'heartRate' | 'weight' | 'sleepAnalysis' | 'hrv'</code>
 
 
 #### HealthUnit
 
-<code>'count' | 'meter' | 'kilocalorie' | 'bpm' | 'kilogram'</code>
+<code>'count' | 'meter' | 'kilocalorie' | 'bpm' | 'kilogram' | 'sleepCategory' | 'ms'</code>
 
 
 #### Record

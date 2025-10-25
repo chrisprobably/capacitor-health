@@ -34,6 +34,7 @@ enum HealthDataType: String, CaseIterable {
     case heartRate
     case weight
     case sleepAnalysis
+    case hrv
 
     func sampleType() throws -> HKSampleType {
         let identifier: HKQuantityTypeIdentifier
@@ -53,6 +54,8 @@ enum HealthDataType: String, CaseIterable {
                 throw HealthManagerError.dataTypeUnavailable(rawValue)
             }
             return type
+        case .hrv:
+            identifier = .heartRateVariabilitySDNN
         }
 
         guard let type = HKObjectType.quantityType(forIdentifier: identifier) else {
@@ -76,6 +79,8 @@ enum HealthDataType: String, CaseIterable {
             return HKUnit.gramUnit(with: .kilo)
         case .sleepAnalysis:
             return HKUnit.hour()
+        case .hrv:
+            return HKUnit.secondUnit(with: .milli)
         }
 
     }
@@ -94,6 +99,8 @@ enum HealthDataType: String, CaseIterable {
             return "kilogram"
         case .sleepAnalysis:
             return "sleepCategory"
+        case .hrv:
+            return "ms"
         }
     }
 
@@ -287,7 +294,7 @@ final class Health {
             }
         }
 
-        let sample = HKQuantitySample(type: sampleType, quantity: quantity, start: startDate, end: endDate, metadata: metadataDictionary)
+        let sample = HKQuantitySample(type: sampleType as! HKQuantityType, quantity: quantity, start: startDate, end: endDate, metadata: metadataDictionary)
 
         healthStore.save(sample) { success, error in
             if let error = error {
