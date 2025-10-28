@@ -1,3 +1,5 @@
+import type { Plugin } from '@capacitor/core';
+
 export type HealthDataType = 'steps' | 'distance' | 'calories' | 'heartRate' | 'weight' | 'sleepAnalysis' | 'hrv';
 
 export type HealthUnit = 'count' | 'meter' | 'kilocalorie' | 'bpm' | 'kilogram' | 'sleepCategory' | 'ms';
@@ -66,7 +68,7 @@ export interface WriteSampleOptions {
   metadata?: Record<string, string>;
 }
 
-export interface HealthPlugin {
+export interface HealthPlugin extends Plugin {
   /** Returns whether the current platform supports the native health SDK. */
   isAvailable(): Promise<AvailabilityResult>;
   /** Requests read/write access to the provided data types. */
@@ -77,4 +79,6 @@ export interface HealthPlugin {
   readSamples(options: QueryOptions): Promise<ReadSamplesResult>;
   /** Writes a single sample to the native health store. */
   saveSample(options: WriteSampleOptions): Promise<void>;
+
+  startObservingHRV(): Promise<void>;
 }

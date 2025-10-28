@@ -1,5 +1,6 @@
 import Foundation
 import Capacitor
+import HealthKit
 
 @objc(HealthPlugin)
 public class HealthPlugin: CAPPlugin, CAPBridgedPlugin {
@@ -10,10 +11,44 @@ public class HealthPlugin: CAPPlugin, CAPBridgedPlugin {
         CAPPluginMethod(name: "requestAuthorization", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "checkAuthorization", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "readSamples", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "startObservingHRV", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "saveSample", returnType: CAPPluginReturnPromise)
     ]
 
     private let implementation = Health()
+    private let healthStore = HKHealthStore()
+    private let hrvType = HKObjectType.quantityType(forIdentifier: .heartRateVariabilitySDNN)!
+    private var observerQuery: HKObserverQuery?
+
+    @objc func startObservingHRV(_ call: CAPPluginCall) {
+        healthStore.enableBackgroundDelivery(for: hrvType, frequency: .immediate) { [weak self] success, _ in
+            guard success else { return }
+            self?.observerQuery = HKObserverQuery(sampleType: self!.hrvType, predicate: nil) { [weak self] (_, completionHandler, _) in
+                self?.fetchLatestHRV { hrvValue in
+                    if let hrvValue = hrvValue {
+                        let data: [String: Any] = ["hrv": hrvValue]
+                        self?.notifyListeners("hrvChanged", data: data)
+                    }
+                }
+                completionHandler()
+            }
+            self?.healthStore.execute(self!.observerQuery!)
+            call.resolve()
+        }
+    }
+
+    private func fetchLatestHRV(completion: @escaping (Double?) -> Void) {
+        let query = HKSampleQuery(sampleType: hrvType, predicate: nil, limit: 1,
+                                  sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)]) { _, samples, _ in
+            if let sample = samples?.first as? HKQuantitySample {
+                let value = sample.quantity.doubleValue(for: HKUnit.secondUnit(with: .milli))
+                completion(value)
+            } else {
+                completion(nil)
+            }
+        }
+        healthStore.execute(query)
+    }
 
     @objc func isAvailable(_ call: CAPPluginCall) {
         call.resolve(implementation.availabilityPayload())

@@ -91,6 +91,7 @@ All write operations expect the default unit shown above. On Android the `metada
 * [`checkAuthorization(...)`](#checkauthorization)
 * [`readSamples(...)`](#readsamples)
 * [`saveSample(...)`](#savesample)
+* [`startObservingHRV()`](#startobservinghrv)
 * [Interfaces](#interfaces)
 * [Type Aliases](#type-aliases)
 
@@ -174,6 +175,15 @@ Writes a single sample to the native health store.
 | Param         | Type                                                              |
 | ------------- | ----------------------------------------------------------------- |
 | **`options`** | <code><a href="#writesampleoptions">WriteSampleOptions</a></code> |
+
+--------------------
+
+
+### startObservingHRV()
+
+```typescript
+startObservingHRV() => Promise<void>
+```
 
 --------------------
 
